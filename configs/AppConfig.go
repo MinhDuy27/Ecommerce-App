@@ -8,17 +8,21 @@ import (
 
 type AppConfig struct {
 	ServerPort string
+	Dsn string
 }
 func SetUpEnv()(cfg AppConfig , err error){
-	// if os.Getenv("APP_ENV") == "DEV" {
-	 	godotenv.Load()
-	// }
-	httpPort := os.Getenv("HTTP_PORT")
-
-	if len(httpPort) == 0 {
+	
+	godotenv.Load()
+	HttpPort := os.Getenv("HTTP_PORT")
+	if len(HttpPort) == 0 {
 		return AppConfig{}, errors.New("HTTP_PORT is not set")
 	}
+	Dsn := os.Getenv("DSN")
+	if len(Dsn) == 0 {
+		return AppConfig{}, errors.New("DSN is not set")
+	}
 	return AppConfig{
-		ServerPort: httpPort,
+		ServerPort: HttpPort,
+		Dsn : Dsn,
 	}, nil
 }

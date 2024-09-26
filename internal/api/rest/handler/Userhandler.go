@@ -1,9 +1,10 @@
 package handler
 
 import (
-	_"fmt"
+	_ "fmt"
 	rest "go-app/internal/api/rest"
 	"go-app/internal/dto"
+	"go-app/internal/repository"
 	"go-app/internal/service"
 	"net/http"
 
@@ -15,14 +16,18 @@ type  UserHandler struct {
 
 func SetUpUserRoutes(rh *rest.RestHandler) {
 	app := rh.App
-
-	
-	usv := service.UserService{}
+	Repo := repository.ReturnRepositroy(rh.Db) 
+	usv := service.UserService{
+		Repo: Repo,
+	}
 	handler := UserHandler{
 		usv: usv,
 	}
 	app.Post("/register", handler.Register)
 	app.Post("/login", handler.Login)
+	// app.Get("/user/:id",handler.FindUserById)
+	// app.Get("/user/:email",handler.FindUserByEmail)
+	// app.Patch("/user/:id",handler.UpdateUserByEmail)
 	// app.Get("/profiles", handler.GetProfiles)
 	// app.Post("/profiles", handler.CreateProfiles)
 	// app.Get("/carts", handler.GetCarts)
@@ -43,7 +48,7 @@ func (u *UserHandler) Register(c *fiber.Ctx) error {
 	value, error := u.usv.SignUp(user)
 	if error != nil {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
-			"message": "error logging in",
+			"message": "error createing user",
 		})
 	}	
 	
@@ -63,7 +68,7 @@ func (u *UserHandler) Login(c *fiber.Ctx) error {
 
 	if error != nil {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
-			"error": "error creating user",
+			"error": "error login",
 		})
 	}
 	return c.Status(http.StatusOK).JSON(&fiber.Map{
