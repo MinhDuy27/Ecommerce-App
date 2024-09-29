@@ -2,6 +2,7 @@ package handler
 
 import (
 	_ "fmt"
+	"go-app/domain"
 	rest "go-app/internal/api/rest"
 	"go-app/internal/dto"
 	"go-app/internal/repository"
@@ -16,7 +17,7 @@ type  UserHandler struct {
 
 func SetUpUserRoutes(rh *rest.RestHandler) {
 	app := rh.App
-	Repo := repository.ReturnRepositroy(rh.Db) 
+	Repo := repository.RepositoryImage(rh.Db) 
 	usv := service.UserService{
 		Repo: Repo,
 	}
@@ -25,9 +26,9 @@ func SetUpUserRoutes(rh *rest.RestHandler) {
 	}
 	app.Post("/register", handler.Register)
 	app.Post("/login", handler.Login)
-	// app.Get("/user/:id",handler.FindUserById)
-	// app.Get("/user/:email",handler.FindUserByEmail)
-	// app.Patch("/user/:id",handler.UpdateUserByEmail)
+	app.Get("/user/id=:id",handler.GetProfilesbyID)
+	app.Get("/user/email=:email",handler.GetProfilesbyEmail)
+	app.Patch("/user/id=:id",handler.UpdateUser)
 	// app.Get("/profiles", handler.GetProfiles)
 	// app.Post("/profiles", handler.CreateProfiles)
 	// app.Get("/carts", handler.GetCarts)
@@ -64,7 +65,7 @@ func (u *UserHandler) Login(c *fiber.Ctx) error {
 			"error": "type valid input",
 		})
 	}
-	message,error := u.usv.Login(user)
+	_,error := u.usv.Login(user)
 
 	if error != nil {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
@@ -72,12 +73,52 @@ func (u *UserHandler) Login(c *fiber.Ctx) error {
 		})
 	}
 	return c.Status(http.StatusOK).JSON(&fiber.Map{
-		"message": message,
+		"message": "login success",
 	})
 }
-// func (u *UserHandler) GetProfiles(c *fiber.Ctx) error {
-	
-// }
+func (u *UserHandler) GetProfilesbyID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	result,error := u.usv.GetProfilesByID(id)
+	if error != nil {
+		return c.Status(http.StatusBadRequest).JSON(&fiber.Map{
+			"error": "user not found",
+	})	
+	}	
+	return   c.Status(http.StatusOK).JSON(result)
+}
+func (u *UserHandler) GetProfilesbyEmail(c *fiber.Ctx) error {
+	email := c.Params("email")
+	result,error := u.usv.GetProfilesByEmail(email)
+	if error != nil {
+		return c.Status(http.StatusBadRequest).JSON(&fiber.Map{
+			"error": "cannot find by your email",
+	})	
+	}	
+	return   c.Status(http.StatusOK).JSON(result)
+}
+func (u *UserHandler) UpdateUser(c *fiber.Ctx) error {
+	id := c.Params("id")
+	_,error := u.usv.GetProfilesByID(id)
+	if error != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"error": "there was an error",
+	})}
+	update := domain.User{}
+    if err := c.BodyParser(&update); err != nil {
+        return c.Status(http.StatusBadRequest).JSON(&fiber.Map{
+            "error": "invalid request body",
+        })
+    }
+	err := u.usv.UpdateUser(id,update)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+            "error": "cannot update user",
+        })
+	}
+	return c.Status(http.StatusOK).JSON(&fiber.Map{
+		"message": "user updated",
+	})
+}
 // func (u *UserHandler) CreateProfiles(c *fiber.Ctx) error {
 	
 // }

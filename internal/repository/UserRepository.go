@@ -16,7 +16,7 @@ type UserRepository interface {
 	UpdateUser (id int, u domain.User) (domain.User, error)
 }
 // allow outside get service by function, not directly
-func ReturnRepositroy(db *gorm.DB) userRepository{
+func RepositoryImage(db *gorm.DB) userRepository{
 	return userRepository{
 		Db: db,
 	}
@@ -36,8 +36,8 @@ func (rp userRepository) CreateUser (u domain.User) (domain.User,error){
 
 func (rp userRepository) FindUserByEmail (email string) (domain.User,error){
 	var user domain.User
-	err := rp.Db.First(&user,"Email=?",email).Error
-	if err != nil{
+	result := rp.Db.First(&user,"Email=?",email)
+	if result.Error != nil{
 		log.Printf("find error by email")
 		return domain.User{},errors.New("cannot find user")
 	}
@@ -45,7 +45,7 @@ func (rp userRepository) FindUserByEmail (email string) (domain.User,error){
 }
 func (rp userRepository) FindUserById (id int) (domain.User,error){
 	var user domain.User
-	err := rp.Db.First(&user,id)
+	err := rp.Db.First(&user,id).Error
 	if err != nil{
 		log.Printf("find error by ID")
 		return domain.User{},errors.New("cannot find user")

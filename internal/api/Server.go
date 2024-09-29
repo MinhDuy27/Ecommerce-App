@@ -27,9 +27,8 @@ func StartServer (config configs.AppConfig) {
 		Db : db,
 	} 
 
-	
-
 	db.AutoMigrate(&domain.User{}) // migrate db
+	
 	SetUpRoute(rh) // use handler to set up routes
 	
 	app.Listen(config.ServerPort) // listen to port
