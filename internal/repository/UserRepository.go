@@ -54,7 +54,7 @@ func (rp userRepository) FindUserById (id int) (domain.User,error){
 }
 func (rp userRepository) UpdateUser (id int, u domain.User) (domain.User,error){
 	var user domain.User
-	err := rp.Db.Model(&user).Clauses(clause.Returning{}).Where("ID=?",id).Updates(u).Error
+	err := rp.Db.Model(&user).Clauses(clause.Locking{Strength: "UPDATE"}).Where("ID=?",id).Updates(u).Error
 	if err != nil{
 		log.Printf("update error")
 		return domain.User{},errors.New("cannot update user")
