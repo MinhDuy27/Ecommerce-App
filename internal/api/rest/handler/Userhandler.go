@@ -1,5 +1,6 @@
 package handler
 
+
 import (
 	_ "fmt"
 	"go-app/domain"
@@ -29,13 +30,13 @@ func SetUpUserRoutes(rh *rest.RestHandler) {
 	app.Get("/user/id=:id",handler.GetProfilesbyID)
 	app.Get("/user/email=:email",handler.GetProfilesbyEmail)
 	app.Patch("/user/id=:id",handler.UpdateUser)
-	// app.Get("/profiles", handler.GetProfiles)
-	// app.Post("/profiles", handler.CreateProfiles)
+	app.Post("/profiles/id=:id", handler.CreateProfiles)
+	app.Patch("/sellers/id=:id", handler.BecomeSeller)
+	app.Patch("/revoke-sellers/id=:id", handler.RevokeSellerStatus)
 	// app.Get("/carts", handler.GetCarts)
 	// app.Post("/carts", handler.CreateCarts)
 	// app.Get("/orders", handler.GetOrders)
 	// app.Get("/orders/:id", handler.GetOrderByID)
-	// app.Post("/become-seller", handler.BecomeSeller)
 }
 
 func (u *UserHandler) Register(c *fiber.Ctx) error {
@@ -101,7 +102,7 @@ func (u *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	_,error := u.usv.GetProfilesByID(id)
 	if error != nil {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
-			"error": "there was an error",
+			"error": "there was an error when verify your id",
 	})}
 	update := domain.User{}
     if err := c.BodyParser(&update); err != nil {
@@ -119,9 +120,31 @@ func (u *UserHandler) UpdateUser(c *fiber.Ctx) error {
 		"message": "user updated",
 	})
 }
-// func (u *UserHandler) CreateProfiles(c *fiber.Ctx) error {
-	
-// }
+func (u *UserHandler) CreateProfiles(c *fiber.Ctx) error {
+	id := c.Params("id")
+	_,error := u.usv.GetProfilesByID(id)
+	if error != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"error": "there was an error when verify your id",
+	})}
+	user := dto.CreateProfiledto{}
+	err := c.BodyParser(&user)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(&fiber.Map{
+			"error": "invalid request body",
+		})
+	}
+	err1 := u.usv.CreateProfile(id,user)
+	if err1 != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"message": "error creating profile",
+		})
+	}
+	return c.Status(http.StatusOK).JSON(&fiber.Map{
+		"message": "profile created",
+	})
+
+}
 // func (u *UserHandler) GetCarts(c *fiber.Ctx) error {
 	
 // }
@@ -134,6 +157,37 @@ func (u *UserHandler) UpdateUser(c *fiber.Ctx) error {
 // func (u *UserHandler) GetOrderByID(c *fiber.Ctx) error {
 	
 // }
-// func (u *UserHandler) BecomeSeller(c *fiber.Ctx) error {
-	
-// }
+func (u *UserHandler) BecomeSeller(c *fiber.Ctx) error {
+	id := c.Params("id")
+	_,error := u.usv.GetProfilesByID(id)
+	if error != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"error": "there was an error when verify your id",
+	})}
+	err := u.usv.BecomeSeller(id)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"error": "there was an error when become seller",
+		})
+	}
+	return c.Status(http.StatusOK).JSON(&fiber.Map{
+		"message": "you are now a seller",
+	})
+}
+func (u *UserHandler) RevokeSellerStatus(c *fiber.Ctx) error {
+	id := c.Params("id")
+	_,error := u.usv.GetProfilesByID(id)
+	if error != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"error": "there was an error when verify your id",
+	})}
+	err := u.usv.RevokeSeller(id)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"error": "there was an error when revoke seller status",
+		})
+	}
+	return c.Status(http.StatusOK).JSON(&fiber.Map{
+		"message": "revoke seller status success",
+	})
+}

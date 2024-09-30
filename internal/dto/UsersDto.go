@@ -8,3 +8,8 @@ type SignUpdto struct {
 	Logindto
 	Phone string `json:"phone"`
 }
+type CreateProfiledto struct {
+	Phone string `json:"phone"`
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
+}
