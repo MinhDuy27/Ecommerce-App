@@ -36,8 +36,8 @@ func (rp userRepository) CreateUser (u domain.User) (domain.User,error){
 
 func (rp userRepository) FindUserByEmail (email string) (domain.User,error){
 	var user domain.User
-	result := rp.Db.First(&user,"Email=?",email)
-	if result.Error != nil{
+	err := rp.Db.First(&user,"Email=?",email).Error
+	if err != nil{
 		log.Printf("find error by email")
 		return domain.User{},errors.New("cannot find user")
 	}

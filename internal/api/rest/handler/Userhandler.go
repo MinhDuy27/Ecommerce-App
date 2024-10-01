@@ -36,12 +36,11 @@ func SetUpUserRoutes(rh *rest.RestHandler) {
 	//private Endpoint
 	prvtRoute := pubRoute.Group("/",rh.Auth.Authorize)
 
-	prvtRoute.Get("/id=:id",handler.GetProfilesbyID)
-	prvtRoute.Get("/email=:email",handler.GetProfilesbyEmail)
-	prvtRoute.Patch("/id=:id",handler.UpdateUser)
-	prvtRoute.Post("/profiles/id=:id", handler.CreateProfiles)
-	prvtRoute.Patch("/sellers/id=:id", handler.BecomeSeller)
-	prvtRoute.Patch("/revoke-sellers/id=:id", handler.RevokeSellerRole)
+	prvtRoute.Get("/profiles",handler.GetProfiles)
+	prvtRoute.Patch("/update",handler.UpdateUser)
+	prvtRoute.Post("/profiles", handler.CreateProfiles)
+	prvtRoute.Patch("/sellers", handler.BecomeSeller)
+	prvtRoute.Patch("/revoke-sellers", handler.RevokeSellerRole)
 	// app.Get("/carts", handler.GetCarts)
 	// app.Post("/carts", handler.CreateCarts)
 	// app.Get("/orders", handler.GetOrders)
@@ -90,8 +89,8 @@ func (u *UserHandler) Login(c *fiber.Ctx) error {
 		"token": token,
 	})
 }
-func (u *UserHandler) GetProfilesbyID(c *fiber.Ctx) error {
-	id := c.Params("id")
+func (u *UserHandler) GetProfiles(c *fiber.Ctx) error {
+	id := u.usv.Auth.GetUser(c).ID
 	result,error := u.usv.GetProfilesByID(id)
 	if error != nil {
 		return c.Status(http.StatusBadRequest).JSON(&fiber.Map{
@@ -100,18 +99,8 @@ func (u *UserHandler) GetProfilesbyID(c *fiber.Ctx) error {
 	}	
 	return   c.Status(http.StatusOK).JSON(result)
 }
-func (u *UserHandler) GetProfilesbyEmail(c *fiber.Ctx) error {
-	email := c.Params("email")
-	result,error := u.usv.GetProfilesByEmail(email)
-	if error != nil {
-		return c.Status(http.StatusBadRequest).JSON(&fiber.Map{
-			"error": "cannot find by your email",
-	})	
-	}	
-	return   c.Status(http.StatusOK).JSON(result)
-}
 func (u *UserHandler) UpdateUser(c *fiber.Ctx) error {
-	id := c.Params("id")
+	id := u.usv.Auth.GetUser(c).ID
 	_,error := u.usv.GetProfilesByID(id)
 	if error != nil {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
@@ -134,7 +123,7 @@ func (u *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	})
 }
 func (u *UserHandler) CreateProfiles(c *fiber.Ctx) error {
-	id := c.Params("id")
+	id := u.usv.Auth.GetUser(c).ID
 	_,error := u.usv.GetProfilesByID(id)
 	if error != nil {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
@@ -171,13 +160,12 @@ func (u *UserHandler) CreateProfiles(c *fiber.Ctx) error {
 	
 // }
 func (u *UserHandler) BecomeSeller(c *fiber.Ctx) error {
-	id := c.Params("id")
-	_,error := u.usv.GetProfilesByID(id)
+	id := u.usv.Auth.GetUser(c).ID
+	user,error := u.usv.GetProfilesByID(id)
 	if error != nil {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
 			"error": "there was an error when verify your id",
 	})}
-	user := u.usv.Auth.GetUser(c)
 	if user.UserType == "seller" {
 		return c.Status(http.StatusBadRequest).JSON(&fiber.Map{
 			"error": "you are already a seller",
@@ -194,13 +182,12 @@ func (u *UserHandler) BecomeSeller(c *fiber.Ctx) error {
 	})
 }
 func (u *UserHandler) RevokeSellerRole(c *fiber.Ctx) error {
-	id := c.Params("id")
-	_,error := u.usv.GetProfilesByID(id)
+	id := u.usv.Auth.GetUser(c).ID
+	user,error := u.usv.GetProfilesByID(id)
 	if error != nil {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
 			"error": "there was an error when verify your id",
 	})}
-	user := u.usv.Auth.GetUser(c)
 	if user.UserType == "buyer" {
 		return c.Status(http.StatusBadRequest).JSON(&fiber.Map{
 			"error": "you are already not a seller",

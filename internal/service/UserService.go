@@ -6,7 +6,6 @@ import (
 	"go-app/internal/helper"
 	"go-app/internal/repository"
 	"log"
-	"strconv"
 )
 
 type UserService struct {
@@ -50,12 +49,8 @@ func (u *UserService) Login(input dto.Logindto) (string, error) {
 	}
 	return  token,nil
 }
-func (u *UserService) GetProfilesByID(idInput string) (domain.User, error) {
-	idInt, err := strconv.ParseUint(idInput,10,32)
-	if err != nil {
-		return domain.User{}, err
-	}
-	value, error := u.Repo.FindUserById(uint(idInt))
+func (u *UserService) GetProfilesByID(id uint) (domain.User, error) {
+	value, error := u.Repo.FindUserById(id)
 	if error != nil {
 		return domain.User{}, error
 	}
@@ -70,59 +65,43 @@ func (u *UserService) GetProfilesByEmail(email string) (domain.User, error) {
 	return value, nil
 
 }
-func (u *UserService) UpdateUser(idInput string, user domain.User) error {
-	idInt, err := strconv.ParseUint(idInput,10,32)
-	if err != nil {
-		return err
-	}
-	value, err := u.Repo.UpdateUser(uint(idInt), user)
+func (u *UserService) UpdateUser(id uint, user domain.User) error {
+	value, err := u.Repo.UpdateUser(uint(id), user)
 	if err != nil {
 		return err
 	}
 	log.Println(value)
 	return nil
 }
-func (u *UserService) CreateProfile(id string, p dto.CreateProfiledto) error {
-	idInt, err := strconv.ParseUint(id,10,32)
-	if err != nil {
-		return err
-	}
+func (u *UserService) CreateProfile(id uint, p dto.CreateProfiledto) error {
 	user := domain.User{
 		Phone:     p.Phone,
 		FirstName: p.FirstName,
 		LastName:  p.LastName,
 	}
-	value, err := u.Repo.UpdateUser(uint(idInt), user)
+	value, err := u.Repo.UpdateUser(id, user)
 	if err != nil {
 		return err
 	}
 	log.Println(value)
 	return nil
 }
-func (u *UserService) BecomeSeller(idInput string) error {
-	idInt, err := strconv.ParseUint(idInput,10,32)
-	if err != nil {
-		return err
-	}
+func (u *UserService) BecomeSeller(id uint) error {
 	user := domain.User{
 		UserType: "seller",
 	}
-	value, err := u.Repo.UpdateUser(uint(idInt), user)
+	value, err := u.Repo.UpdateUser(id, user)
 	if err != nil {
 		return err
 	}
 	log.Println(value)
 	return nil
 }
-func (u *UserService) RevokeSeller(idInput string) error {
-	idInt, err := strconv.ParseUint(idInput,10,32)
-	if err != nil {
-		return err
-	}
+func (u *UserService) RevokeSeller(id uint) error {
 	user := domain.User{
 		UserType: "buyer",
 	}
-	value, err := u.Repo.UpdateUser(uint(idInt), user)
+	value, err := u.Repo.UpdateUser(id, user)
 	if err != nil {
 		return err
 	}

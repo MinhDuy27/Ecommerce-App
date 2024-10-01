@@ -8,7 +8,7 @@ type User struct {
 	LastName  string `json:"lastname"`
 	Email     string `json:"email" gorm:"index;unique;not null"`
 	Phone     string `json:"phone"`
-	Password  string `json:"password"`
+	Password  string `json:"-"`
 	Code      int    `json:"code"`
 	Expiry    time.Time `json:"expiry"`
 	Verifired bool `json:"verifired" gorm:"default:false"`
