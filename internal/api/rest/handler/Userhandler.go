@@ -1,6 +1,5 @@
 package handler
 
-
 import (
 	_ "fmt"
 	"go-app/domain"
@@ -8,6 +7,7 @@ import (
 	"go-app/internal/dto"
 	"go-app/internal/repository"
 	"go-app/internal/service"
+	"log"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,18 +21,27 @@ func SetUpUserRoutes(rh *rest.RestHandler) {
 	Repo := repository.RepositoryImage(rh.Db) 
 	usv := service.UserService{
 		Repo: Repo,
+		Auth: rh.Auth,
 	}
 	handler := UserHandler{
 		usv: usv,
 	}
-	app.Post("/register", handler.Register)
-	app.Post("/login", handler.Login)
-	app.Get("/user/id=:id",handler.GetProfilesbyID)
-	app.Get("/user/email=:email",handler.GetProfilesbyEmail)
-	app.Patch("/user/id=:id",handler.UpdateUser)
-	app.Post("/profiles/id=:id", handler.CreateProfiles)
-	app.Patch("/sellers/id=:id", handler.BecomeSeller)
-	app.Patch("/revoke-sellers/id=:id", handler.RevokeSellerStatus)
+	//public Endpoint
+	pubRoute := app.Group("/users")
+
+	pubRoute.Post("/register", handler.Register)
+	pubRoute.Post("/login", handler.Login)
+
+
+	//private Endpoint
+	prvtRoute := pubRoute.Group("/",rh.Auth.Authorize)
+
+	prvtRoute.Get("/id=:id",handler.GetProfilesbyID)
+	prvtRoute.Get("/email=:email",handler.GetProfilesbyEmail)
+	prvtRoute.Patch("/id=:id",handler.UpdateUser)
+	prvtRoute.Post("/profiles/id=:id", handler.CreateProfiles)
+	prvtRoute.Patch("/sellers/id=:id", handler.BecomeSeller)
+	prvtRoute.Patch("/revoke-sellers/id=:id", handler.RevokeSellerRole)
 	// app.Get("/carts", handler.GetCarts)
 	// app.Post("/carts", handler.CreateCarts)
 	// app.Get("/orders", handler.GetOrders)
@@ -43,19 +52,22 @@ func (u *UserHandler) Register(c *fiber.Ctx) error {
 	user := dto.SignUpdto{}
 	err := c.BodyParser(&user)
 	if err != nil {
+		log.Println(err)
 		return c.Status(http.StatusBadRequest).JSON(&fiber.Map{
 			"message": "type valid input",
 		})
 	}
-	value, error := u.usv.SignUp(user)
+	token, error := u.usv.SignUp(user)
 	if error != nil {
+		log.Println(error)
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
-			"message": "error createing user",
+			"message": "error creating user",
 		})
 	}	
 	
 	return c.Status(http.StatusOK).JSON(&fiber.Map{
-		"message": value,
+		"message": "register success",
+		"token": token,
 	})
 }
 func (u *UserHandler) Login(c *fiber.Ctx) error {
@@ -66,15 +78,16 @@ func (u *UserHandler) Login(c *fiber.Ctx) error {
 			"error": "type valid input",
 		})
 	}
-	_,error := u.usv.Login(user)
+	token,error := u.usv.Login(user)
 
 	if error != nil {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
-			"error": "error login",
+			"error": "login failed",
 		})
 	}
 	return c.Status(http.StatusOK).JSON(&fiber.Map{
 		"message": "login success",
+		"token": token,
 	})
 }
 func (u *UserHandler) GetProfilesbyID(c *fiber.Ctx) error {
@@ -164,6 +177,12 @@ func (u *UserHandler) BecomeSeller(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
 			"error": "there was an error when verify your id",
 	})}
+	user := u.usv.Auth.GetUser(c)
+	if user.UserType == "seller" {
+		return c.Status(http.StatusBadRequest).JSON(&fiber.Map{
+			"error": "you are already a seller",
+		})
+	}
 	err := u.usv.BecomeSeller(id)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
@@ -174,20 +193,26 @@ func (u *UserHandler) BecomeSeller(c *fiber.Ctx) error {
 		"message": "you are now a seller",
 	})
 }
-func (u *UserHandler) RevokeSellerStatus(c *fiber.Ctx) error {
+func (u *UserHandler) RevokeSellerRole(c *fiber.Ctx) error {
 	id := c.Params("id")
 	_,error := u.usv.GetProfilesByID(id)
 	if error != nil {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
 			"error": "there was an error when verify your id",
 	})}
+	user := u.usv.Auth.GetUser(c)
+	if user.UserType == "buyer" {
+		return c.Status(http.StatusBadRequest).JSON(&fiber.Map{
+			"error": "you are already not a seller",
+		})
+	}
 	err := u.usv.RevokeSeller(id)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
-			"error": "there was an error when revoke seller status",
+			"error": "there was an error when revoke seller role",
 		})
 	}
 	return c.Status(http.StatusOK).JSON(&fiber.Map{
-		"message": "revoke seller status success",
+		"message": "revoke seller role success",
 	})
 }

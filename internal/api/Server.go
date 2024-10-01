@@ -5,7 +5,9 @@ import (
 	"go-app/domain"
 	rest "go-app/internal/api/rest"
 	RestHandler "go-app/internal/api/rest/handler"
+	"go-app/internal/helper"
 	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -20,11 +22,12 @@ func StartServer (config configs.AppConfig) {
 		log.Fatalf("Db connection failed %v",err)
 	}
 	log.Printf("DB connected")
-
+	Auth := helper.GetAuth(config.AppSecret)
 	// create handler
 	rh := &rest.RestHandler{
 		App : app,
 		Db : db,
+		Auth: Auth,
 	} 
 
 	db.AutoMigrate(&domain.User{}) // migrate db

@@ -12,8 +12,8 @@ import (
 type UserRepository interface {
 	CreateUser(usr domain.User) (domain.User,error)
 	FindUserByEmail(email string) (domain.User,error)
-	FindUserById(id int) (domain.User,error)
-	UpdateUser (id int, u domain.User) (domain.User, error)
+	FindUserById(id uint) (domain.User,error)
+	UpdateUser (id uint, u domain.User) (domain.User, error)
 }
 // allow outside get service by function, not directly
 func RepositoryImage(db *gorm.DB) userRepository{
@@ -43,7 +43,7 @@ func (rp userRepository) FindUserByEmail (email string) (domain.User,error){
 	}
 	return user,nil
 }
-func (rp userRepository) FindUserById (id int) (domain.User,error){
+func (rp userRepository) FindUserById (id uint) (domain.User,error){
 	var user domain.User
 	err := rp.Db.First(&user,id).Error
 	if err != nil{
@@ -52,7 +52,7 @@ func (rp userRepository) FindUserById (id int) (domain.User,error){
 	}
 	return user,nil
 }
-func (rp userRepository) UpdateUser (id int, u domain.User) (domain.User,error){
+func (rp userRepository) UpdateUser (id uint, u domain.User) (domain.User,error){
 	var user domain.User
 	err := rp.Db.Model(&user).Clauses(clause.Locking{Strength: "UPDATE"}).Where("ID=?",id).Updates(u).Error
 	if err != nil{

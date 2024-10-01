@@ -1,9 +1,9 @@
 package service
 
 import (
-	"fmt"
 	"go-app/domain"
 	"go-app/internal/dto"
+	"go-app/internal/helper"
 	"go-app/internal/repository"
 	"log"
 	"strconv"
@@ -11,38 +11,51 @@ import (
 
 type UserService struct {
 	Repo repository.UserRepository
+	Auth helper.Auth
 }
 
 func (u *UserService) SignUp(input dto.SignUpdto) (string, error) {
+	hashedPassword, err := u.Auth.HashPassword(input.Password)
+	if err != nil {
+		return "",err
+	}
 	usr := domain.User{
 		Email:    input.Email,
 		Phone:    input.Phone,
-		Password: input.Password,
+		Password: hashedPassword,
 	}
 	value, err := u.Repo.CreateUser(usr)
 	if err != nil {
-		return "create faile", err
+		return "", err
 	}
-	User_info := fmt.Sprintf("%v,%v.%v", value.UserType, value.ID, value.Email)
-	return User_info, nil
+	token, err := u.Auth.GenerateToken(value.ID, value.Email, value.UserType)
+	if err != nil {
+		return "",err
+	}
+	return token, nil
 }
 
 func (u *UserService) Login(input dto.Logindto) (string, error) {
 	value, err := u.Repo.FindUserByEmail(input.Email)
 	if err != nil {
-		return "login failed", err
+		return "", err
 	}
-	if value.Password != input.Password {
-		return "incorrect Email or Password", nil
+	err = u.Auth.VerifyPassword(value.Password,input.Password)
+	if err != nil {
+		return "", err
 	}
-	return value.Email, nil
+	token, err := u.Auth.GenerateToken(value.ID, value.Email, value.UserType)
+	if err != nil {
+		return "",err
+	}
+	return  token,nil
 }
 func (u *UserService) GetProfilesByID(idInput string) (domain.User, error) {
-	idInt, err := strconv.Atoi(idInput)
+	idInt, err := strconv.ParseUint(idInput,10,32)
 	if err != nil {
 		return domain.User{}, err
 	}
-	value, error := u.Repo.FindUserById(idInt)
+	value, error := u.Repo.FindUserById(uint(idInt))
 	if error != nil {
 		return domain.User{}, error
 	}
@@ -58,11 +71,11 @@ func (u *UserService) GetProfilesByEmail(email string) (domain.User, error) {
 
 }
 func (u *UserService) UpdateUser(idInput string, user domain.User) error {
-	idInt, err := strconv.Atoi(idInput)
+	idInt, err := strconv.ParseUint(idInput,10,32)
 	if err != nil {
 		return err
 	}
-	value, err := u.Repo.UpdateUser(idInt, user)
+	value, err := u.Repo.UpdateUser(uint(idInt), user)
 	if err != nil {
 		return err
 	}
@@ -70,7 +83,7 @@ func (u *UserService) UpdateUser(idInput string, user domain.User) error {
 	return nil
 }
 func (u *UserService) CreateProfile(id string, p dto.CreateProfiledto) error {
-	idInt, err := strconv.Atoi(id)
+	idInt, err := strconv.ParseUint(id,10,32)
 	if err != nil {
 		return err
 	}
@@ -79,7 +92,7 @@ func (u *UserService) CreateProfile(id string, p dto.CreateProfiledto) error {
 		FirstName: p.FirstName,
 		LastName:  p.LastName,
 	}
-	value, err := u.Repo.UpdateUser(idInt, user)
+	value, err := u.Repo.UpdateUser(uint(idInt), user)
 	if err != nil {
 		return err
 	}
@@ -87,14 +100,14 @@ func (u *UserService) CreateProfile(id string, p dto.CreateProfiledto) error {
 	return nil
 }
 func (u *UserService) BecomeSeller(idInput string) error {
-	idInt, err := strconv.Atoi(idInput)
+	idInt, err := strconv.ParseUint(idInput,10,32)
 	if err != nil {
 		return err
 	}
 	user := domain.User{
 		UserType: "seller",
 	}
-	value, err := u.Repo.UpdateUser(idInt, user)
+	value, err := u.Repo.UpdateUser(uint(idInt), user)
 	if err != nil {
 		return err
 	}
@@ -102,14 +115,14 @@ func (u *UserService) BecomeSeller(idInput string) error {
 	return nil
 }
 func (u *UserService) RevokeSeller(idInput string) error {
-	idInt, err := strconv.Atoi(idInput)
+	idInt, err := strconv.ParseUint(idInput,10,32)
 	if err != nil {
 		return err
 	}
 	user := domain.User{
 		UserType: "buyer",
 	}
-	value, err := u.Repo.UpdateUser(idInt, user)
+	value, err := u.Repo.UpdateUser(uint(idInt), user)
 	if err != nil {
 		return err
 	}
