@@ -2,6 +2,7 @@ package helper
 
 import (
 	"errors"
+	
 	"go-app/domain"
 	"net/http"
 	"strings"
@@ -69,7 +70,7 @@ func (a Auth) VerifyToken(t string) (domain.User,error) {
 	token, err := jwt.Parse(tokenarr[1], func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok{
-			return domain.User{}, errors.New("error parsing token")
+			return nil, errors.New("error parsing token")
 		}
 		return []byte(a.secret), nil
 	})
@@ -89,7 +90,6 @@ func (a Auth) VerifyToken(t string) (domain.User,error) {
 		},nil
 	}
 	return domain.User{}, errors.New("error verify token")
-
 }
 func (a Auth) Authorize (ctx *fiber.Ctx) error{
 	authHeader := ctx.Get("Authorization")

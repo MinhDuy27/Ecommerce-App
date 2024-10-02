@@ -1,4 +1,4 @@
-package rest
+package  rest
 
 import (
 	"go-app/internal/helper"

@@ -41,6 +41,8 @@ func SetUpUserRoutes(rh *rest.RestHandler) {
 	prvtRoute.Post("/profiles", handler.CreateProfiles)
 	prvtRoute.Patch("/sellers", handler.BecomeSeller)
 	prvtRoute.Patch("/revoke-sellers", handler.RevokeSellerRole)
+	prvtRoute.Get("/verifications", handler.GetVerificationCode)
+	prvtRoute.Post("/verifications", handler.Verification)
 	// app.Get("/carts", handler.GetCarts)
 	// app.Post("/carts", handler.CreateCarts)
 	// app.Get("/orders", handler.GetOrders)
@@ -147,18 +149,6 @@ func (u *UserHandler) CreateProfiles(c *fiber.Ctx) error {
 	})
 
 }
-// func (u *UserHandler) GetCarts(c *fiber.Ctx) error {
-	
-// }
-// func (u *UserHandler) CreateCarts(c *fiber.Ctx) error {
-	
-// }
-// func (u *UserHandler) GetOrders(c *fiber.Ctx) error {
-	
-// }
-// func (u *UserHandler) GetOrderByID(c *fiber.Ctx) error {
-	
-// }
 func (u *UserHandler) BecomeSeller(c *fiber.Ctx) error {
 	id := u.usv.Auth.GetUser(c).ID
 	user,error := u.usv.GetProfilesByID(id)
@@ -203,3 +193,58 @@ func (u *UserHandler) RevokeSellerRole(c *fiber.Ctx) error {
 		"message": "revoke seller role success",
 	})
 }
+func (u *UserHandler) GetVerificationCode(c *fiber.Ctx) error {
+	id := u.usv.Auth.GetUser(c).ID
+	user,error := u.usv.GetProfilesByID(id)
+	if error != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"error": "there was an error when verify your id",
+	})}
+	code,error := u.usv.GetVerificationCode(user)
+	if error != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"error": error.Error(),
+		})
+	}
+	return c.Status(http.StatusOK).JSON(&fiber.Map{
+		"message": "verification code",
+		"code": code,
+	})
+}
+func (u *UserHandler) Verification(c *fiber.Ctx) error {
+	id := u.usv.Auth.GetUser(c).ID
+	_,error := u.usv.GetProfilesByID(id)
+	if error != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"error": "there was an error when verify your id",
+	})}
+
+	input := dto.VerificationCode{}
+	err := c.BodyParser(&input)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(&fiber.Map{
+			"error": "invalid request body",
+		})
+	}
+	err1 := u.usv.VerifyCode(id,input.Code)
+	if err1 != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"error": "error verify code",
+		})
+	}
+	return c.Status(http.StatusOK).JSON(&fiber.Map{
+		"message": "code verified",
+	})
+}
+// func (u *UserHandler) GetCarts(c *fiber.Ctx) error {
+	
+// }
+// func (u *UserHandler) CreateCarts(c *fiber.Ctx) error {
+	
+// }
+// func (u *UserHandler) GetOrders(c *fiber.Ctx) error {
+	
+// }
+// func (u *UserHandler) GetOrderByID(c *fiber.Ctx) error {
+	
+// }

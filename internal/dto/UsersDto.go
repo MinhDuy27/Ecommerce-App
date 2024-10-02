@@ -13,3 +13,6 @@ type CreateProfiledto struct {
 	FirstName string `json:"firstname"`
 	LastName  string `json:"lastname"`
 }
+type VerificationCode struct {
+	Code uint `json:"code"`
+}
