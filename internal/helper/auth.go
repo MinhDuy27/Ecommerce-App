@@ -74,6 +74,7 @@ func (a Auth) VerifyToken(t string) (domain.User,error) {
 		}
 		return []byte(a.secret), nil
 	})
+	
 	if err != nil {
 		return domain.User{}, errors.New("error signing method")
 	}

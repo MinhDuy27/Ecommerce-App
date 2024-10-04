@@ -13,7 +13,7 @@ type UserRepository interface {
 	CreateUser(usr domain.User) (domain.User,error)
 	FindUserByEmail(email string) (domain.User,error)
 	FindUserById(id uint) (domain.User,error)
-	UpdateUser (id uint, u domain.User) (domain.User, error)
+	UpdateUser(id uint, u domain.User) (domain.User, error)
 }
 // allow outside get service by function, not directly
 func RepositoryImage(db *gorm.DB) userRepository{

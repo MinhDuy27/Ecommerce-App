@@ -110,7 +110,7 @@ func (u *UserService) RevokeSeller(id uint) error {
 	log.Println(value)
 	return nil
 }
-func (s UserService) IsValidtogetcode(id uint) (int, bool) {
+func (s UserService) IsValidToGetCode(id uint) (int, bool) {
 
 	currentUser, err := s.Repo.FindUserById(id)
 	if err != nil {
@@ -124,7 +124,7 @@ func (s UserService) IsValidtogetcode(id uint) (int, bool) {
 }
 
 func (u *UserService) GetVerificationCode(user domain.User) (uint, error) {
-	num, isvalid := u.IsValidtogetcode(user.ID)
+	num, isvalid := u.IsValidToGetCode(user.ID)
 	if !isvalid {
 		switch num {
 		case 0:
@@ -133,7 +133,7 @@ func (u *UserService) GetVerificationCode(user domain.User) (uint, error) {
 			return 0, errors.New("user already verified")
 		}
 	}
-	code, err := helper.GenNumber(6)
+	code, err := helper.GenCode(6)
 	if err != nil {
 		return 0, err
 	}
@@ -149,7 +149,7 @@ func (u *UserService) GetVerificationCode(user domain.User) (uint, error) {
 }
 func (u *UserService) VerifyCode(id uint, code uint) error {
 
-	num, isvalid := u.IsValidtogetcode(id)
+	num, isvalid := u.IsValidToGetCode(id)
 	if !isvalid {
 		switch num {
 		case 0:

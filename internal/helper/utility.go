@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func GenNumber(length int) (uint, error) {
+func GenCode(length int) (uint, error) {
 	const number = "0123456789"
 	buffer := make([]byte, length)
 	_, err := rand.Read(buffer)

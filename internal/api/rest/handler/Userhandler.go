@@ -71,6 +71,7 @@ func (u *UserHandler) Register(c *fiber.Ctx) error {
 		"token": token,
 	})
 }
+
 func (u *UserHandler) Login(c *fiber.Ctx) error {
 	user := dto.Logindto{}
 	err := c.BodyParser(&user)
