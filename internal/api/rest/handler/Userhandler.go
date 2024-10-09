@@ -1,30 +1,36 @@
 package handler
 
 import (
+	"encoding/json"
 	_ "fmt"
 	"go-app/domain"
 	rest "go-app/internal/api/rest"
 	"go-app/internal/dto"
+	"go-app/internal/helper"
 	"go-app/internal/repository"
 	"go-app/internal/service"
 	"log"
 	"net/http"
-
+	"strconv"
+	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/gofiber/fiber/v2"
 )
 type  UserHandler struct {
 	usv service.UserService
+	cache *helper.Client
 }
 
 func SetUpUserRoutes(rh *rest.RestHandler) {
 	app := rh.App
 	Repo := repository.RepositoryImage(rh.Db) 
+	cached := rh.Cached
 	usv := service.UserService{
 		Repo: Repo,
 		Auth: rh.Auth,
 	}
 	handler := UserHandler{
 		usv: usv,
+		cache: cached,
 	}
 	//public Endpoint
 	pubRoute := app.Group("/users")
@@ -36,7 +42,7 @@ func SetUpUserRoutes(rh *rest.RestHandler) {
 	//private Endpoint
 	prvtRoute := pubRoute.Group("/",rh.Auth.Authorize)
 
-	prvtRoute.Get("/profiles",handler.GetProfiles)
+	prvtRoute.Get("/profiles",rh.Cached.VerifyCache,handler.GetProfiles)
 	prvtRoute.Patch("/update",handler.UpdateUser)
 	prvtRoute.Post("/profiles", handler.CreateProfiles)
 	prvtRoute.Patch("/sellers", handler.BecomeSeller)
@@ -94,13 +100,23 @@ func (u *UserHandler) Login(c *fiber.Ctx) error {
 }
 func (u *UserHandler) GetProfiles(c *fiber.Ctx) error {
 	id := u.usv.Auth.GetUser(c).ID
-	result,error := u.usv.GetProfilesByID(id)
-	if error != nil {
+	idStr := strconv.FormatUint(uint64(id), 10)
+	result,err := u.usv.GetProfilesByID(id)
+	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(&fiber.Map{
 			"error": "user not found",
-	})	
-	}	
-	return   c.Status(http.StatusOK).JSON(result)
+	})}
+	resultByte, err := json.Marshal(result)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"error": "parse []byte error",
+	})}
+	cacheErr := u.cache.Client.Set(&memcache.Item{Key: idStr, Value: resultByte, Expiration: 100})
+	if cacheErr != nil {
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"error": "memcached error",
+	})}
+	return c.Status(http.StatusOK).JSON(result)
 }
 func (u *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	id := u.usv.Auth.GetUser(c).ID

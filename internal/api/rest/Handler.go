@@ -1,4 +1,4 @@
-package  rest
+package rest
 
 import (
 	"go-app/internal/helper"
@@ -11,4 +11,5 @@ type RestHandler struct {
 	App *fiber.App
 	Db *gorm.DB
 	Auth helper.Auth
+	Cached *helper.Client
 }

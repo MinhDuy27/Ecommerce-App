@@ -7,7 +7,6 @@ import (
 	RestHandler "go-app/internal/api/rest/handler"
 	"go-app/internal/helper"
 	"log"
-
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -24,10 +23,16 @@ func StartServer (config configs.AppConfig) {
 	log.Printf("DB connected")
 	Auth := helper.GetAuth(config.AppSecret)
 	// create handler
+	Cache,err := helper.NewMemcached()
+	if err!= nil {
+		log.Fatalf("error connecting to memcached %v",err)
+	}
+	
 	rh := &rest.RestHandler{
 		App : app,
 		Db : db,
 		Auth: Auth,
+		Cached: Cache,
 	} 
 
 	db.AutoMigrate(&domain.User{}) // migrate db

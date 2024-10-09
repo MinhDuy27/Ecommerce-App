@@ -60,7 +60,6 @@ func (a Auth) GenerateToken(id uint, email string, role string) (string,error) {
 	}
 	return tokenString,nil
 }
-
 func (a Auth) VerifyToken(t string) (domain.User,error) {
 	tokenarr := strings.Split(t, " ")
 
