@@ -2,7 +2,7 @@ package helper
 
 import (
 	"encoding/json"
-	"go-app/domain"
+	"github.com/MinhDuy27/go-app/domain"
 	"net/http"
 	"os"
 	"strconv"

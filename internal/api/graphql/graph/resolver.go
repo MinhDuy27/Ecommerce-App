@@ -4,10 +4,10 @@
 package graph
 
 import( 
-	
+	"github.com/MinhDuy27/go-app/internal/service"
 )
 
 
 type Resolver struct{
-	
+	service *service.UserService
 }

@@ -2,7 +2,7 @@ package repository
 
 import (
 	"errors"
-	"go-app/domain"
+	"github.com/MinhDuy27/go-app/domain"
 	"log"
 
 	"gorm.io/gorm"

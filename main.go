@@ -1,8 +1,8 @@
 package main
 
 import (
-	"go-app/configs"
-	"go-app/internal/api"
+	"github.com/MinhDuy27/go-app/configs"
+	"github.com/MinhDuy27/go-app/internal/api"
 	"log"
 )
 

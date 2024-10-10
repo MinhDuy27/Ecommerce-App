@@ -1,4 +1,4 @@
-module go-app
+module github.com/MinhDuy27/go-app
 
 go 1.23.1
 
