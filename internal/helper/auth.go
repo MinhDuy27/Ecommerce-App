@@ -3,7 +3,7 @@ package helper
 import (
 	"errors"
 	
-	"github.com/MinhDuy27/go-app/domain"
+	"github.com/MinhDuy27/Ecommerce-App/domain"
 	"net/http"
 	"strings"
 	"time"

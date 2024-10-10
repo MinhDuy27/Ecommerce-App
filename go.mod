@@ -1,4 +1,4 @@
-module github.com/MinhDuy27/go-app
+module github.com/MinhDuy27/Ecommerce-App
 
 go 1.23.1
 

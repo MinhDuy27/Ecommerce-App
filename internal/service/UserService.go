@@ -2,10 +2,10 @@ package service
 
 import (
 	"errors"
-	"github.com/MinhDuy27/go-app/domain"
-	"github.com/MinhDuy27/go-app/internal/dto"
-	"github.com/MinhDuy27/go-app/internal/helper"
-	"github.com/MinhDuy27/go-app/internal/repository"
+	"github.com/MinhDuy27/Ecommerce-App/domain"
+	"github.com/MinhDuy27/Ecommerce-App/internal/dto"
+	"github.com/MinhDuy27/Ecommerce-App/internal/helper"
+	"github.com/MinhDuy27/Ecommerce-App/internal/repository"
 	"log"
 	"time"
 )

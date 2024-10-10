@@ -4,7 +4,7 @@
 package graph
 
 import( 
-	"github.com/MinhDuy27/go-app/internal/service"
+	"github.com/MinhDuy27/Ecommerce-App/internal/service"
 )
 
 

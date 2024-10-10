@@ -1,11 +1,11 @@
 package api
 
 import (
-	"github.com/MinhDuy27/go-app/configs"
-	"github.com/MinhDuy27/go-app/domain"
-	rest "github.com/MinhDuy27/go-app/internal/api/rest"
-	RestHandler "github.com/MinhDuy27/go-app/internal/api/rest/handler"
-	"github.com/MinhDuy27/go-app/internal/helper"
+	"github.com/MinhDuy27/Ecommerce-App/configs"
+	"github.com/MinhDuy27/Ecommerce-App/domain"
+	rest "github.com/MinhDuy27/Ecommerce-App/internal/api/rest"
+	RestHandler "github.com/MinhDuy27/Ecommerce-App/internal/api/rest/handler"
+	"github.com/MinhDuy27/Ecommerce-App/internal/helper"
 	"log"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/postgres"
