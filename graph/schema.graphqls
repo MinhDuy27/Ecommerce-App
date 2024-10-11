@@ -8,6 +8,21 @@ type User{
 input NewUser{
   Email: String !
   Password: String !
+  Phone: String!
+}
+input Login{
+  Email: String !
+  Password: String !
+}
+input Verify{
+  id: String!
+  Code: String!
+}
+input UpdateUser{
+  id : String!
+  FirstName: String 
+  LastName: String  
+  Phone: String
 }
 
 type Message{
@@ -15,10 +30,13 @@ type Message{
 }
 type Query{
   User(id: String!): User!
-
+  Login(input: Login): Message!
+  GetVerificationCode(id: String!) : Message!
+  Verification(input: Verify): Message!
 }
 
 type Mutation{
   SignUp(input: NewUser): Message!
+  UpDate(input: UpdateUser): Message!
 }
 

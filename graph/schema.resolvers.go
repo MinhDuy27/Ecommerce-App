@@ -8,6 +8,7 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/MinhDuy27/Ecommerce-App/domain"
 	"github.com/MinhDuy27/Ecommerce-App/graph/model"
 	"github.com/MinhDuy27/Ecommerce-App/internal/dto"
 )
@@ -20,7 +21,7 @@ func (r *mutationResolver) SignUp(ctx context.Context, input *model.NewUser) (*m
 	}
 	SignUpdto := dto.SignUpdto{
 		Logindto: logindto,
-		Phone:    "123124514",
+		Phone:    input.Phone,
 	}
 	value, err := r.Usv.SignUp(SignUpdto)
 	if err != nil {
@@ -28,6 +29,47 @@ func (r *mutationResolver) SignUp(ctx context.Context, input *model.NewUser) (*m
 	}
 	message := model.Message{
 		Message: value,
+	}
+	return &message, nil
+}
+
+// UpDate is the resolver for the UpDate field.
+func (r *mutationResolver) UpDate(ctx context.Context, input *model.UpdateUser) (*model.Message, error) {
+	User := domain.User{
+		FirstName: func() string {
+			if input.FirstName != nil {
+				return *input.FirstName
+			}
+			return ""
+		}(),
+		LastName: func() string {
+			if input.LastName != nil {
+				return *input.LastName
+			}
+			return ""
+		}(),
+		Phone: func() string {
+			if input.Phone != nil {
+				return *input.Phone
+			}
+			return ""
+		}(),
+	}
+	id := input.ID
+	uint_id, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, error := r.Usv.Repo.FindUserById(uint(uint_id))
+	if error != nil {
+		return &model.Message{}, error
+	}
+	_, error = r.Usv.Repo.UpdateUser(uint(uint_id), User)
+	if error != nil {
+		return &model.Message{}, error
+	}
+	message := model.Message{
+		Message: "update success",
 	}
 	return &message, nil
 }
@@ -49,6 +91,67 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 		Phone:     value.Phone,
 	}
 	return &user, nil
+}
+
+// Login is the resolver for the Login field.
+func (r *queryResolver) Login(ctx context.Context, input *model.Login) (*model.Message, error) {
+	logindto := dto.Logindto{
+		Email:    input.Email,
+		Password: input.Password,
+	}
+	message, err := r.Usv.Login(logindto)
+	if err != nil {
+		return nil, err
+	}
+	Message := model.Message{
+		Message: message,
+	}
+	return &Message, nil
+}
+
+// GetVerificationCode is the resolver for the GetVerificationCode field.
+func (r *queryResolver) GetVerificationCode(ctx context.Context, id string) (*model.Message, error) {
+	uint_id, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	user, error := r.Usv.GetProfilesByID(uint(uint_id))
+	if error != nil {
+		return nil, error
+	}
+	code, error := r.Usv.GetVerificationCode(user)
+	if error != nil {
+		return nil, error
+	}
+	string_Val := strconv.FormatUint(uint64(code), 10)
+	message := model.Message{
+		Message: string_Val,
+	}
+	return &message, nil
+}
+
+// Verification is the resolver for the Verification field.
+func (r *queryResolver) Verification(ctx context.Context, input *model.Verify) (*model.Message, error) {
+	uint_id, err := strconv.ParseUint(input.ID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, err = r.Usv.GetProfilesByID(uint(uint_id))
+	if err != nil {
+		return nil, err
+	}
+	uint_code, err := strconv.ParseUint(input.Code, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	err = r.Usv.VerifyCode(uint(uint_id), uint(uint_code))
+	if err != nil {
+		return nil, err
+	}
+	message := model.Message{
+		Message: "verification success",
+	}
+	return &message, nil
 }
 
 // Mutation returns MutationResolver implementation.

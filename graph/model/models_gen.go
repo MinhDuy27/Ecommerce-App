@@ -2,6 +2,11 @@
 
 package model
 
+type Login struct {
+	Email    string `json:"Email"`
+	Password string `json:"Password"`
+}
+
 type Message struct {
 	Message string `json:"Message"`
 }
@@ -12,9 +17,17 @@ type Mutation struct {
 type NewUser struct {
 	Email    string `json:"Email"`
 	Password string `json:"Password"`
+	Phone    string `json:"Phone"`
 }
 
 type Query struct {
+}
+
+type UpdateUser struct {
+	ID        string  `json:"id"`
+	FirstName *string `json:"FirstName,omitempty"`
+	LastName  *string `json:"LastName,omitempty"`
+	Phone     *string `json:"Phone,omitempty"`
 }
 
 type User struct {
@@ -22,4 +35,9 @@ type User struct {
 	LastName  string `json:"LastName"`
 	Phone     string `json:"Phone"`
 	Email     string `json:"Email"`
+}
+
+type Verify struct {
+	ID   string `json:"id"`
+	Code string `json:"Code"`
 }
