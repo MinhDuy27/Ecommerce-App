@@ -23,11 +23,11 @@ type  UserHandler struct {
 func SetUpUserRoutes(rh *rest.RestHandler) {
 	app := rh.App
 	Repo := repository.RepositoryImage(rh.Db) 
-	cached := rh.Cached
 	usv := service.UserService{
 		Repo: Repo,
 		Auth: rh.Auth,
 	}
+	cached := rh.Cached
 	handler := UserHandler{
 		usv: usv,
 		cache: cached,

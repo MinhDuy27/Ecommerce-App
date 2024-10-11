@@ -14,7 +14,7 @@ type AppConfig struct {
 func SetUpEnv()(cfg AppConfig , err error){
 	
 	godotenv.Load()
-	HttpPort := os.Getenv("HTTP_PORT")
+	HttpPort := os.Getenv("GRAPQL_PORT")
 	if len(HttpPort) == 0 {
 		return AppConfig{}, errors.New("HTTP_PORT is not set")
 	}

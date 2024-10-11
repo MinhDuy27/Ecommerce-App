@@ -2,11 +2,12 @@ package helper
 
 import (
 	"errors"
-	
-	"github.com/MinhDuy27/Ecommerce-App/domain"
+
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/MinhDuy27/Ecommerce-App/domain"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
