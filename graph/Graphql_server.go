@@ -8,6 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/MinhDuy27/Ecommerce-App/configs"
+	"github.com/MinhDuy27/Ecommerce-App/domain"
 	"github.com/MinhDuy27/Ecommerce-App/internal/helper"
 	"github.com/MinhDuy27/Ecommerce-App/internal/repository"
 	"github.com/MinhDuy27/Ecommerce-App/internal/service"
@@ -22,6 +23,11 @@ func GraphServer(config configs.AppConfig) {
 	if err != nil{
 		log.Fatalf("Db connection failed %v",err)
 	}
+	db.AutoMigrate(
+		&domain.User{},
+		&domain.Product{},
+	)
+	
 	port := os.Getenv(config.ServerPort)
 	if port == "" {
 		port = defaultPort
@@ -32,10 +38,15 @@ func GraphServer(config configs.AppConfig) {
 		Repo: Repo,
 		Auth: Auth,
 	}
+	ProductRepo := repository.GetProductImage(db)
+	psv := service.ProductService{
+		Rp: ProductRepo,
+	}
 	log.Printf("DB connected")
 	
 	srv := handler.NewDefaultServer(NewExecutableSchema(Config{Resolvers: &Resolver{
 		Usv : usv,
+		Psv : psv,
 	}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))

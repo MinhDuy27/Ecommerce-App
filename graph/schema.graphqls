@@ -29,14 +29,49 @@ type Message{
   Message: String!
 }
 type Query{
+  #User
   User(id: String!): User!
   Login(input: Login): Message!
   GetVerificationCode(id: String!) : Message!
   Verification(input: Verify): Message!
+
+  # Product
+  Product(id: String!): Product!
+  AllProduct(amount: Int!): [Product]!
 }
 
 type Mutation{
+  #User
   SignUp(input: NewUser): Message!
   UpDate(input: UpdateUser): Message!
+
+  #Product 
+  DelProduct(id: String!): Message!
+  UpdProduct(id: String!,input:UpdateProduct): Message!
+  CreProduct(input: NewProduct!): Message!
 }
+
+# Product Part
+input NewProduct{
+  Name: String!
+  Description: String!
+  Price: Float!
+  Quantity: Int!
+  ImageURL : String!
+}
+input UpdateProduct{
+  Name: String
+  Description: String
+  Price: Float
+  Quantity: Int
+  ImageURL : String
+}
+type Product{
+  Name: String!
+  Description: String!
+  Price: Float!
+  Quantity: Int!
+  Image_url : String!
+}
+
 

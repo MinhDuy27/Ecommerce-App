@@ -14,13 +14,37 @@ type Message struct {
 type Mutation struct {
 }
 
+type NewProduct struct {
+	Name        string  `json:"Name"`
+	Description string  `json:"Description"`
+	Price       float64 `json:"Price"`
+	Quantity    int     `json:"Quantity"`
+	ImageURL    string  `json:"ImageURL"`
+}
+
 type NewUser struct {
 	Email    string `json:"Email"`
 	Password string `json:"Password"`
 	Phone    string `json:"Phone"`
 }
 
+type Product struct {
+	Name        string  `json:"Name"`
+	Description string  `json:"Description"`
+	Price       float64 `json:"Price"`
+	Quantity    int     `json:"Quantity"`
+	ImageURL    string  `json:"Image_url"`
+}
+
 type Query struct {
+}
+
+type UpdateProduct struct {
+	Name        *string  `json:"Name,omitempty"`
+	Description *string  `json:"Description,omitempty"`
+	Price       *float64 `json:"Price,omitempty"`
+	Quantity    *int     `json:"Quantity,omitempty"`
+	ImageURL    *string  `json:"ImageURL,omitempty"`
 }
 
 type UpdateUser struct {

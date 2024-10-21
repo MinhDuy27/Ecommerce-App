@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"log"
 	"strconv"
 
 	"github.com/MinhDuy27/Ecommerce-App/domain"
@@ -72,6 +73,85 @@ func (r *mutationResolver) UpDate(ctx context.Context, input *model.UpdateUser) 
 		Message: "update success",
 	}
 	return &message, nil
+}
+
+// DelProduct is the resolver for the DelProduct field.
+func (r *mutationResolver) DelProduct(ctx context.Context, id string) (*model.Message, error) {
+	Uint_id, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	if err = r.Psv.Rp.DeleteProduct(uint(Uint_id)); err != nil {
+		return nil, err
+	}
+	return &model.Message{Message: "delete success"}, nil
+}
+
+// UpdProduct is the resolver for the UpdProduct field.
+func (r *mutationResolver) UpdProduct(ctx context.Context, id string, input *model.UpdateProduct) (*model.Message, error) {
+	Uint_id, err := strconv.ParseUint(id, 10, 64)
+    if err != nil {
+        return nil, err
+    }
+
+    // Create the UpdateProductDto with pointer fields
+    Upd := dto.UpdateProductDto{
+        Name:        input.Name,
+        Description: input.Description,
+        Price:       input.Price,
+        Quantity: func() *uint {
+            if input.Quantity != nil {
+                q := uint(*input.Quantity)
+                return &q
+            }
+            return nil
+        }(),
+        ImageURL: input.ImageURL,
+    }
+
+    // Fetch the existing product
+    existingProduct, err := r.Psv.Rp.FindProduct(uint(Uint_id))
+    if err != nil {
+        return nil, err
+    }
+
+    // Update fields if they are provided in the input
+    if Upd.Name != nil {
+        existingProduct.Name = *Upd.Name
+    }
+    if Upd.Description != nil {
+        existingProduct.Description = *Upd.Description
+    }
+    if Upd.Price != nil {
+        existingProduct.Price = *Upd.Price
+    }
+    if Upd.Quantity != nil {
+        existingProduct.Quantity = *Upd.Quantity
+    }
+    if Upd.ImageURL != nil {
+        existingProduct.Image_url = *Upd.ImageURL
+    }
+	
+	if err := r.Psv.Rp.UpdateProduct(uint(Uint_id), existingProduct); err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	return &model.Message{Message: "update success"}, nil
+}
+
+// CreProduct is the resolver for the CreProduct field.
+func (r *mutationResolver) CreProduct(ctx context.Context, input model.NewProduct) (*model.Message, error) {
+	NewProduct := dto.CreateProductDto{
+		Name:        input.Name,
+		Description: input.Description,
+		Price:       input.Price,
+		Quantity:    uint(input.Quantity),
+		Image_url:   input.ImageURL,
+	}
+	if err := r.Psv.Create(NewProduct); err != nil {
+		return nil, err
+	}
+	return &model.Message{Message: "create success"}, nil
 }
 
 // User is the resolver for the User field.
@@ -149,9 +229,49 @@ func (r *queryResolver) Verification(ctx context.Context, input *model.Verify) (
 		return nil, err
 	}
 	message := model.Message{
-		Message: "verification success",
+		Message: "verify successfully",
 	}
 	return &message, nil
+}
+
+// Product is the resolver for the Product field.
+func (r *queryResolver) Product(ctx context.Context, id string) (*model.Product, error) {
+	Int_id, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return &model.Product{}, err
+	}
+	value, err := r.Psv.Rp.FindProduct(uint(Int_id))
+	if err != nil {
+		return &model.Product{}, err
+	}
+	product := model.Product{
+		Name:        value.Name,
+		Description: value.Description,
+		Price:       value.Price,
+		Quantity:    int(value.Quantity),
+		ImageURL:    value.Image_url,
+	}
+	return &product, nil
+}
+
+// AllProduct is the resolver for the AllProduct field.
+func (r *queryResolver) AllProduct(ctx context.Context, amount int) ([]*model.Product, error) {
+	res, err := r.Psv.Rp.GetAllProduct(amount)
+	if err != nil {
+		return nil, err
+	}
+	var products []*model.Product
+	for _, value := range res {
+		product := &model.Product{
+			Name:        value.Name,
+			Description: value.Description,
+			Price:       value.Price,
+			Quantity:    int(value.Quantity),
+			ImageURL:    value.Image_url,
+		}
+		products = append(products, product)
+	}
+	return products, nil
 }
 
 // Mutation returns MutationResolver implementation.
