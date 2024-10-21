@@ -19,7 +19,6 @@ input Verify{
   Code: String!
 }
 input UpdateUser{
-  id : String!
   FirstName: String 
   LastName: String  
   Phone: String
@@ -43,11 +42,11 @@ type Query{
 type Mutation{
   #User
   SignUp(input: NewUser): Message!
-  UpDate(input: UpdateUser): Message!
+  UpdUser(id: String!, input: UpdateUser): Message!
 
   #Product 
   DelProduct(id: String!): Message!
-  UpdProduct(id: String!,input:UpdateProduct): Message!
+  UpdProduct(id: String!,input: UpdateProduct): Message!
   CreProduct(input: NewProduct!): Message!
 }
 

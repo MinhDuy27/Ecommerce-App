@@ -48,7 +48,6 @@ type UpdateProduct struct {
 }
 
 type UpdateUser struct {
-	ID        string  `json:"id"`
 	FirstName *string `json:"FirstName,omitempty"`
 	LastName  *string `json:"LastName,omitempty"`
 	Phone     *string `json:"Phone,omitempty"`

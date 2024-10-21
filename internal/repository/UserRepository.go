@@ -53,7 +53,12 @@ func (rp userRepository) FindUserById (id uint) (domain.User,error){
 }
 func (rp userRepository) UpdateUser (id uint, u domain.User) (domain.User,error){
 	var user domain.User
-	err := rp.Db.Model(&user).Clauses(clause.Locking{Strength: "UPDATE"}).Where("ID=?",id).Updates(u).Error
+	update_user := map [string]interface{}{
+		"FirstName": u.FirstName,
+		"LastName": u.LastName,
+		"Phone": u.Phone,
+	}
+	err := rp.Db.Model(&user).Clauses(clause.Locking{Strength: "UPDATE"}).Where("ID=?",id).Updates(update_user).Error
 	if err != nil{
 		log.Printf("update error")
 		return domain.User{},errors.New("cannot update user")

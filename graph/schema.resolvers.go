@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	E "errors"
 	"log"
 	"strconv"
 
@@ -34,8 +35,8 @@ func (r *mutationResolver) SignUp(ctx context.Context, input *model.NewUser) (*m
 	return &message, nil
 }
 
-// UpDate is the resolver for the UpDate field.
-func (r *mutationResolver) UpDate(ctx context.Context, input *model.UpdateUser) (*model.Message, error) {
+// UpdUser is the resolver for the UpdUser field.
+func (r *mutationResolver) UpdUser(ctx context.Context, id string, input *model.UpdateUser) (*model.Message, error) {
 	User := domain.User{
 		FirstName: func() string {
 			if input.FirstName != nil {
@@ -56,24 +57,28 @@ func (r *mutationResolver) UpDate(ctx context.Context, input *model.UpdateUser) 
 			return ""
 		}(),
 	}
-	id := input.ID
 	uint_id, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
+		return nil, E.New("cannot parse id")
 	}
-	_, error := r.Usv.Repo.FindUserById(uint(uint_id))
-	if error != nil {
-		return &model.Message{}, error
+	_, err = r.Usv.Repo.FindUserById(uint(uint_id))
+	if err != nil {
+		log.Fatal(err)
+		return &model.Message{}, E.New("cannot find user")
 	}
-	_, error = r.Usv.Repo.UpdateUser(uint(uint_id), User)
-	if error != nil {
-		return &model.Message{}, error
+	_, err = r.Usv.Repo.UpdateUser(uint(uint_id), User)
+	if err != nil {
+		log.Fatal(err)
+		return &model.Message{}, E.New("cannot update user")
 	}
 	message := model.Message{
 		Message: "update success",
 	}
 	return &message, nil
 }
+
+
 
 // DelProduct is the resolver for the DelProduct field.
 func (r *mutationResolver) DelProduct(ctx context.Context, id string) (*model.Message, error) {
@@ -90,48 +95,48 @@ func (r *mutationResolver) DelProduct(ctx context.Context, id string) (*model.Me
 // UpdProduct is the resolver for the UpdProduct field.
 func (r *mutationResolver) UpdProduct(ctx context.Context, id string, input *model.UpdateProduct) (*model.Message, error) {
 	Uint_id, err := strconv.ParseUint(id, 10, 64)
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
-    // Create the UpdateProductDto with pointer fields
-    Upd := dto.UpdateProductDto{
-        Name:        input.Name,
-        Description: input.Description,
-        Price:       input.Price,
-        Quantity: func() *uint {
-            if input.Quantity != nil {
-                q := uint(*input.Quantity)
-                return &q
-            }
-            return nil
-        }(),
-        ImageURL: input.ImageURL,
-    }
+	// Create the UpdateProductDto with pointer fields
+	Upd := dto.UpdateProductDto{
+		Name:        input.Name,
+		Description: input.Description,
+		Price:       input.Price,
+		Quantity: func() *uint {
+			if input.Quantity != nil {
+				q := uint(*input.Quantity)
+				return &q
+			}
+			return nil
+		}(),
+		ImageURL: input.ImageURL,
+	}
 
-    // Fetch the existing product
-    existingProduct, err := r.Psv.Rp.FindProduct(uint(Uint_id))
-    if err != nil {
-        return nil, err
-    }
+	// Fetch the existing product
+	existingProduct, err := r.Psv.Rp.FindProduct(uint(Uint_id))
+	if err != nil {
+		return nil, err
+	}
 
-    // Update fields if they are provided in the input
-    if Upd.Name != nil {
-        existingProduct.Name = *Upd.Name
-    }
-    if Upd.Description != nil {
-        existingProduct.Description = *Upd.Description
-    }
-    if Upd.Price != nil {
-        existingProduct.Price = *Upd.Price
-    }
-    if Upd.Quantity != nil {
-        existingProduct.Quantity = *Upd.Quantity
-    }
-    if Upd.ImageURL != nil {
-        existingProduct.Image_url = *Upd.ImageURL
-    }
-	
+	// Update fields if they are provided in the input
+	if Upd.Name != nil {
+		existingProduct.Name = *Upd.Name
+	}
+	if Upd.Description != nil {
+		existingProduct.Description = *Upd.Description
+	}
+	if Upd.Price != nil {
+		existingProduct.Price = *Upd.Price
+	}
+	if Upd.Quantity != nil {
+		existingProduct.Quantity = *Upd.Quantity
+	}
+	if Upd.ImageURL != nil {
+		existingProduct.Image_url = *Upd.ImageURL
+	}
+
 	if err := r.Psv.Rp.UpdateProduct(uint(Uint_id), existingProduct); err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -282,3 +287,51 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *mutationResolver) UpDate(ctx context.Context, input *model.UpdateUser) (*model.Message, error) {
+	User := domain.User{
+		FirstName: func() string {
+			if input.FirstName != nil {
+				return *input.FirstName
+			}
+			return ""
+		}(),
+		LastName: func() string {
+			if input.LastName != nil {
+				return *input.LastName
+			}
+			return ""
+		}(),
+		Phone: func() string {
+			if input.Phone != nil {
+				return *input.Phone
+			}
+			return ""
+		}(),
+	}
+	id := input.ID
+	uint_id, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, error := r.Usv.Repo.FindUserById(uint(uint_id))
+	if error != nil {
+		return &model.Message{}, error
+	}
+	_, error = r.Usv.Repo.UpdateUser(uint(uint_id), User)
+	if error != nil {
+		return &model.Message{}, error
+	}
+	message := model.Message{
+		Message: "update success",
+	}
+	return &message, nil
+}
+*/

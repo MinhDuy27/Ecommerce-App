@@ -48,7 +48,14 @@ func (pr productRepository) FindProduct(id uint) (domain.Product, error) {
 
 func (pr productRepository) UpdateProduct(id uint, p domain.Product) error {
 	var product domain.Product
-	err := pr.Db.Model(&product).Clauses(clause.Locking{Strength: "UPDATE"}).Where("ID=?", id).Updates(p).Error
+	product_update := map [string]interface{} {
+		"name": p.Name,
+		"description": p.Description,
+		"price": p.Price,
+		"quantity": p.Quantity,
+		"image_url": p.Image_url,
+	}
+	err := pr.Db.Model(&product).Clauses(clause.Locking{Strength: "UPDATE"}).Where("ID=?", id).Updates(product_update).Error
 	if err != nil {
 		return err
 	}
@@ -66,7 +73,7 @@ func (pr productRepository) DeleteProduct(id uint) error {
 
 func (pr productRepository) GetAllProduct(amount int) ([]domain.Product, error) {
 	var products []domain.Product
-	if err := pr.Db.Find(&products).Limit(amount).Error; err != nil {
+	if err := pr.Db.Limit(amount).Find(&products).Error; err != nil {
 		return nil, err
 	}
 	return products, nil
