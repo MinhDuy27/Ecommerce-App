@@ -37,6 +37,15 @@ type Query{
   # Product
   Product(id: String!): Product!
   AllProduct(amount: Int!): [Product]!
+
+  # Transaction
+  Transaction(id :String): Transaction!
+  AllTransaction(amount: Int!): [Transaction]!
+
+
+  # Cart
+  Cart(id: String): Cart!
+  AllCart(amount: Int!): [Cart]!
 }
 
 type Mutation{
@@ -48,6 +57,17 @@ type Mutation{
   DelProduct(id: String!): Message!
   UpdProduct(id: String!,input: UpdateProduct): Message!
   CreProduct(input: NewProduct!): Message!
+
+  #Transaction
+  CreateTransaction(userId: String!, cartId: string!): Transaction!
+  DeleteTransaction(transId: String!): Message!
+
+  #Cart
+  AddToCart(input: MalProcutInCart!): Message!
+  RemoveFromCart(intput: MalProcutInCart!): Message!
+  CreateNewCart(intput: MalCart!): Message!
+  RemoveCart(intput: MalCart!): Message!
+  
 }
 
 # Product Part
@@ -72,5 +92,33 @@ type Product{
   Quantity: Int!
   Image_url : String!
 }
+
+# Transaction Part
+
+type Transaction{
+  UserID : Int!
+  Amount: Int!
+  TotalPrice: Float!
+  Discount: Float!
+  ShippingCost: Float!
+  TotalCost: Float!
+  Items: [String!]!
+}
+
+# Cart 
+type Cart{
+  CartID: String!
+  Item: [String]!
+}
+input MalProcutInCart{
+  CartId: String!
+  ProductID: String!
+  Quantity: Int!
+}
+input MalCart{
+  UserID: String!
+  CartID: String
+}
+
 
 

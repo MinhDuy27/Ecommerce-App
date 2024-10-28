@@ -2,9 +2,26 @@
 
 package model
 
+type Cart struct {
+	CartID string    `json:"CartID"`
+	Item   []*string `json:"Item"`
+}
+
 type Login struct {
 	Email    string `json:"Email"`
 	Password string `json:"Password"`
+}
+
+type MalCart struct {
+	UserID string  `json:"UserID"`
+	CartID *string `json:"CartID,omitempty"`
+}
+
+type MalProcutInCart struct {
+	UserID    string `json:"UserID"`
+	CartID    string `json:"CartId"`
+	ProductID string `json:"ProductID"`
+	Quantity  int    `json:"Quantity"`
 }
 
 type Message struct {
@@ -37,6 +54,16 @@ type Product struct {
 }
 
 type Query struct {
+}
+
+type Transaction struct {
+	UserID       int      `json:"UserID"`
+	Amount       int      `json:"Amount"`
+	TotalPrice   float64  `json:"TotalPrice"`
+	Discount     float64  `json:"Discount"`
+	ShippingCost float64  `json:"ShippingCost"`
+	TotalCost    float64  `json:"TotalCost"`
+	Items        []string `json:"Items"`
 }
 
 type UpdateProduct struct {

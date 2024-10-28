@@ -7,18 +7,18 @@ import (
 )
 
 type ProductService struct {
-	Rp repository.ProductRepository
+	Repo repository.ProductRepository
 }
 
 
 func (p *ProductService) Create(input dto.CreateProductDto) error {
-	if err := p.Rp.CreateProduct(input); err != nil {
+	if err := p.Repo.CreateProduct(input); err != nil {
 		return err
 	}
 	return nil
 }
 func (p *ProductService) Find(id uint) (domain.Product, error) {
-	value, err := p.Rp.FindProduct(id)
+	value, err := p.Repo.FindProduct(id)
 	if err != nil {
 		return domain.Product{}, err
 	}
@@ -26,21 +26,21 @@ func (p *ProductService) Find(id uint) (domain.Product, error) {
 }
 
 func (p *ProductService) Update(id uint, input domain.Product) error {
-	if err := p.Rp.UpdateProduct(id, input); err != nil {
+	if err := p.Repo.UpdateProduct(id, input); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (p *ProductService) Delete(id uint) error {
-	if err := p.Rp.DeleteProduct(id); err != nil {
+	if err := p.Repo.DeleteProduct(id); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (p *ProductService) GetAll(amount int) ([]domain.Product, error) {
-	value, err := p.Rp.GetAllProduct(amount)
+	value, err := p.Repo.GetAllProduct(amount)
 	if err != nil {
 		return nil, err
 	}

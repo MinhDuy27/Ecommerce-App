@@ -14,3 +14,8 @@ type Product struct {
 	UpdatedAt time.Time `json:"updated_at" gorm:"default:current_timestamp"`
 
 }
+type Cart struct{
+	CartID uint `json:"cart_id" gorm:"Primarikey"`
+	UserID uint `json:"user_id"`
+	Items map[uint]int `json:"items"`
+}

@@ -26,6 +26,7 @@ func GraphServer(config configs.AppConfig) {
 	db.AutoMigrate(
 		&domain.User{},
 		&domain.Product{},
+		&domain.Transaction{},
 	)
 	
 	port := os.Getenv(config.ServerPort)
@@ -40,13 +41,26 @@ func GraphServer(config configs.AppConfig) {
 	}
 	ProductRepo := repository.GetProductImage(db)
 	psv := service.ProductService{
-		Rp: ProductRepo,
+		Repo: ProductRepo,
+	}
+	TransactionRepo:= repository.GetTransactionImage(db)
+	Tsv := service.TransactionService{
+		Repo: TransactionRepo,
+		Auth: Auth,
+	}
+	CartRepo:= repository.GetCartImage(db)
+	Csv := service.CartService{
+		Repo: CartRepo,
+		Auth: Auth,
 	}
 	log.Printf("DB connected")
 	
 	srv := handler.NewDefaultServer(NewExecutableSchema(Config{Resolvers: &Resolver{
 		Usv : usv,
 		Psv : psv,
+		Tsv : Tsv,
+		Csv : Csv,
+
 	}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))

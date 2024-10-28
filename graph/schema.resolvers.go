@@ -6,7 +6,8 @@ package graph
 
 import (
 	"context"
-	E "errors"
+	"errors"
+	"fmt"
 	"log"
 	"strconv"
 
@@ -60,17 +61,17 @@ func (r *mutationResolver) UpdUser(ctx context.Context, id string, input *model.
 	uint_id, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		log.Fatal(err)
-		return nil, E.New("cannot parse id")
+		return nil, errors.New("cannot parse id")
 	}
 	_, err = r.Usv.Repo.FindUserById(uint(uint_id))
 	if err != nil {
 		log.Fatal(err)
-		return &model.Message{}, E.New("cannot find user")
+		return &model.Message{}, errors.New("cannot find user")
 	}
 	_, err = r.Usv.Repo.UpdateUser(uint(uint_id), User)
 	if err != nil {
 		log.Fatal(err)
-		return &model.Message{}, E.New("cannot update user")
+		return &model.Message{}, errors.New("cannot update user")
 	}
 	message := model.Message{
 		Message: "update success",
@@ -78,15 +79,13 @@ func (r *mutationResolver) UpdUser(ctx context.Context, id string, input *model.
 	return &message, nil
 }
 
-
-
 // DelProduct is the resolver for the DelProduct field.
 func (r *mutationResolver) DelProduct(ctx context.Context, id string) (*model.Message, error) {
 	Uint_id, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		return nil, err
 	}
-	if err = r.Psv.Rp.DeleteProduct(uint(Uint_id)); err != nil {
+	if err = r.Psv.Repo.DeleteProduct(uint(Uint_id)); err != nil {
 		return nil, err
 	}
 	return &model.Message{Message: "delete success"}, nil
@@ -115,7 +114,7 @@ func (r *mutationResolver) UpdProduct(ctx context.Context, id string, input *mod
 	}
 
 	// Fetch the existing product
-	existingProduct, err := r.Psv.Rp.FindProduct(uint(Uint_id))
+	existingProduct, err := r.Psv.Repo.FindProduct(uint(Uint_id))
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +136,7 @@ func (r *mutationResolver) UpdProduct(ctx context.Context, id string, input *mod
 		existingProduct.Image_url = *Upd.ImageURL
 	}
 
-	if err := r.Psv.Rp.UpdateProduct(uint(Uint_id), existingProduct); err != nil {
+	if err := r.Psv.Repo.UpdateProduct(uint(Uint_id), existingProduct); err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
@@ -157,6 +156,36 @@ func (r *mutationResolver) CreProduct(ctx context.Context, input model.NewProduc
 		return nil, err
 	}
 	return &model.Message{Message: "create success"}, nil
+}
+
+// CreateTransaction is the resolver for the CreateTransaction field.
+func (r *mutationResolver) CreateTransaction(ctx context.Context, id string) (*model.Transaction, error) {
+	panic(fmt.Errorf("not implemented: CreateTransaction - CreateTransaction"))
+}
+
+// DeleteTransaction is the resolver for the DeleteTransaction field.
+func (r *mutationResolver) DeleteTransaction(ctx context.Context, id string) (*model.Message, error) {
+	panic(fmt.Errorf("not implemented: DeleteTransaction - DeleteTransaction"))
+}
+
+// AddToCart is the resolver for the AddToCart field.
+func (r *mutationResolver) AddToCart(ctx context.Context, input model.MalProcutInCart) (*model.Message, error) {
+	panic(fmt.Errorf("not implemented: AddToCart - AddToCart"))
+}
+
+// RemoveFromCart is the resolver for the RemoveFromCart field.
+func (r *mutationResolver) RemoveFromCart(ctx context.Context, intput model.MalProcutInCart) (*model.Message, error) {
+	panic(fmt.Errorf("not implemented: RemoveFromCart - RemoveFromCart"))
+}
+
+// CreateNewCart is the resolver for the CreateNewCart field.
+func (r *mutationResolver) CreateNewCart(ctx context.Context, intput model.MalCart) (*model.Message, error) {
+	panic(fmt.Errorf("not implemented: CreateNewCart - CreateNewCart"))
+}
+
+// RemoveCart is the resolver for the RemoveCart field.
+func (r *mutationResolver) RemoveCart(ctx context.Context, intput model.MalCart) (*model.Message, error) {
+	panic(fmt.Errorf("not implemented: RemoveCart - RemoveCart"))
 }
 
 // User is the resolver for the User field.
@@ -245,7 +274,7 @@ func (r *queryResolver) Product(ctx context.Context, id string) (*model.Product,
 	if err != nil {
 		return &model.Product{}, err
 	}
-	value, err := r.Psv.Rp.FindProduct(uint(Int_id))
+	value, err := r.Psv.Repo.FindProduct(uint(Int_id))
 	if err != nil {
 		return &model.Product{}, err
 	}
@@ -261,7 +290,7 @@ func (r *queryResolver) Product(ctx context.Context, id string) (*model.Product,
 
 // AllProduct is the resolver for the AllProduct field.
 func (r *queryResolver) AllProduct(ctx context.Context, amount int) ([]*model.Product, error) {
-	res, err := r.Psv.Rp.GetAllProduct(amount)
+	res, err := r.Psv.Repo.GetAllProduct(amount)
 	if err != nil {
 		return nil, err
 	}
@@ -279,6 +308,26 @@ func (r *queryResolver) AllProduct(ctx context.Context, amount int) ([]*model.Pr
 	return products, nil
 }
 
+// Transaction is the resolver for the Transaction field.
+func (r *queryResolver) Transaction(ctx context.Context, id *string) (*model.Transaction, error) {
+	panic(fmt.Errorf("not implemented: Transaction - Transaction"))
+}
+
+// AllTransaction is the resolver for the AllTransaction field.
+func (r *queryResolver) AllTransaction(ctx context.Context, amount int) ([]*model.Transaction, error) {
+	panic(fmt.Errorf("not implemented: AllTransaction - AllTransaction"))
+}
+
+// Cart is the resolver for the Cart field.
+func (r *queryResolver) Cart(ctx context.Context, id *string) (*model.Cart, error) {
+	panic(fmt.Errorf("not implemented: Cart - Cart"))
+}
+
+// AllCart is the resolver for the AllCart field.
+func (r *queryResolver) AllCart(ctx context.Context, amount int) ([]*model.Cart, error) {
+	panic(fmt.Errorf("not implemented: AllCart - AllCart"))
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
@@ -287,51 +336,3 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func (r *mutationResolver) UpDate(ctx context.Context, input *model.UpdateUser) (*model.Message, error) {
-	User := domain.User{
-		FirstName: func() string {
-			if input.FirstName != nil {
-				return *input.FirstName
-			}
-			return ""
-		}(),
-		LastName: func() string {
-			if input.LastName != nil {
-				return *input.LastName
-			}
-			return ""
-		}(),
-		Phone: func() string {
-			if input.Phone != nil {
-				return *input.Phone
-			}
-			return ""
-		}(),
-	}
-	id := input.ID
-	uint_id, err := strconv.ParseUint(id, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-	_, error := r.Usv.Repo.FindUserById(uint(uint_id))
-	if error != nil {
-		return &model.Message{}, error
-	}
-	_, error = r.Usv.Repo.UpdateUser(uint(uint_id), User)
-	if error != nil {
-		return &model.Message{}, error
-	}
-	message := model.Message{
-		Message: "update success",
-	}
-	return &message, nil
-}
-*/

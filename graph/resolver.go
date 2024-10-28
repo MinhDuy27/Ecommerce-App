@@ -12,4 +12,6 @@ import (
 type Resolver struct{
 	Usv service.UserService
 	Psv service.ProductService
+	Tsv service.TransactionService
+	Csv service.CartService
 }
