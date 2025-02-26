@@ -53,6 +53,7 @@ func GraphServer(config configs.AppConfig) {
 		Repo: CartRepo,
 		Auth: Auth,
 	}
+
 	log.Printf("DB connected")
 	
 	srv := handler.NewDefaultServer(NewExecutableSchema(Config{Resolvers: &Resolver{
@@ -60,12 +61,11 @@ func GraphServer(config configs.AppConfig) {
 		Psv : psv,
 		Tsv : Tsv,
 		Csv : Csv,
-
 	}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
-
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
+

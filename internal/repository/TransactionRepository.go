@@ -8,8 +8,8 @@ import (
 type TransactionRepository interface {
 	CreateTransaction(CartID,UserID uint) error
 	DeleteTransaction(TransId uint) error
-	GetTransaction(TransId uint) (domain.Transaction, error)
-	GetAllTransaction(userID uint, Amount int) ([]domain.Transaction, error)
+	// GetTransaction(TransId uint) (domain.Transaction, error)
+	// GetAllTransaction(userID uint, Amount int) ([]domain.Transaction, error)
 }
 
 

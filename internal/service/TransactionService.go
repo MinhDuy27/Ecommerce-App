@@ -4,7 +4,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/MinhDuy27/Ecommerce-App/domain"
+	_"github.com/MinhDuy27/Ecommerce-App/domain"
 	"github.com/MinhDuy27/Ecommerce-App/internal/helper"
 	"github.com/MinhDuy27/Ecommerce-App/internal/repository"
 )
@@ -40,25 +40,25 @@ func (t *TransactionService) DeleteTransaction(TransId string) error {
 	}
 	return nil
 }
-func (t* TransactionService) GetTransaction(TransId string) (domain.Transaction, error){
-	trans_Uint, err := strconv.ParseUint(TransId, 10, 64)
-	if err != nil {
-		return domain.Transaction{},err
-	}
-	transaction,err = t.Repo.GetTransaction(uint(trans_Uint))
-	if err != nil {
-		return domain.Transaction{},err
-	}
-	return transaction,nil
-}
-func (t* TransactionService) GetAllTransaction(userID string,Amount int) ([]domain.Transaction, error){
-	trans_Uint, err := strconv.ParseUint(userID, 10, 64)
-	if err != nil {
-		return[]domain.Transaction{},err
-	}
-	transaction,err = t.Repo.GetTransaction(uint(trans_Uint))
-	if err != nil {
-		return []domain.Transaction{},err
-	}
-	return transaction,nil
-}
+// func (t* TransactionService) GetTransaction(TransId string) (domain.Transaction, error){
+// 	trans_Uint, err := strconv.ParseUint(TransId, 10, 64)
+// 	if err != nil {
+// 		return domain.Transaction{},err
+// 	}
+// 	transaction,err = t.Repo.GetTransaction(uint(trans_Uint))
+// 	if err != nil {
+// 		return domain.Transaction{},err
+// 	}
+// 	return transaction,nil
+// }
+// func (t* TransactionService) GetAllTransaction(userID string,Amount int) ([]domain.Transaction, error){
+// 	trans_Uint, err := strconv.ParseUint(userID, 10, 64)
+// 	if err != nil {
+// 		return[]domain.Transaction{},err
+// 	}
+// 	transaction,err = t.Repo.GetTransaction(uint(trans_Uint))
+// 	if err != nil {
+// 		return []domain.Transaction{},err
+// 	}
+// 	return transaction,nil
+// }
